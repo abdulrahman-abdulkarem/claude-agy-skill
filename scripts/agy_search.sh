@@ -22,6 +22,7 @@ if [[ -z "$QUERY" ]]; then
 fi
 
 exec agy --dangerously-skip-permissions \
-         --effort low \
+         --effort high \
+         --model gemini-3.8-flash-high \
          --print-timeout 3m \
          --print "Search the live web for: ${QUERY}. Retrieve current information, synthesize a clear and concise summary, and include source links."

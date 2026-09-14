@@ -20,10 +20,13 @@ if [[ -z "$MODE" || -z "$PROMPT" ]]; then
     exit 1
 fi
 
+# Every mode always runs on gemini-3.8-flash-high at --effort high. Modes differ only in
+# prompt framing and timeout, never in model or effort.
 case "$MODE" in
     search)
         exec agy --dangerously-skip-permissions \
-                 --effort low \
+                 --effort high \
+                 --model gemini-3.8-flash-high \
                  --print-timeout 3m \
                  --print "Search the web for: ${PROMPT}. Provide a concise, factual summary with sources."
         ;;
@@ -36,7 +39,8 @@ case "$MODE" in
         ;;
     task)
         exec agy --dangerously-skip-permissions \
-                 --effort medium \
+                 --effort high \
+                 --model gemini-3.8-flash-high \
                  --print-timeout 4m \
                  --print "${PROMPT}"
         ;;

@@ -11,13 +11,17 @@ you ask, with grounded source links it can cite back to you.
 
 ## What It Does
 
-Three modes, each tuned to a different cost/latency/depth trade-off:
+Three modes, distinguished only by prompt framing and timeout:
 
-| Mode | What it's for | Model effort | Typical latency |
-|------|---------------|--------------|-----------------|
-| **`search`** | Live web lookups — latest docs, package versions, release notes, error strings | `low` | ~20–30s |
-| **`deep`** | Architectural trade-offs, technical comparisons, complex debugging research | `high` (`gemini-3.8-flash-high`) | ~35s–5m |
-| **`task`** | Quick delegated subtasks, boilerplate, second-opinion verification | `medium` | ~5–20s |
+| Mode | What it's for | Typical latency |
+|------|---------------|-----------------|
+| **`search`** | Live web lookups — latest docs, package versions, release notes, error strings | ~30–60s |
+| **`deep`** | Architectural trade-offs, technical comparisons, complex debugging research | ~35s–5m |
+| **`task`** | Quick delegated subtasks, boilerplate, second-opinion verification | ~10–20s (scales with the work asked for) |
+
+**Every mode always runs on `gemini-3.8-flash-high` at `--effort high`** — there is no
+lower-effort or different-model path. That trades a bit of latency on simple lookups for
+consistently strong reasoning on everything the skill does, including quick ones.
 
 Claude triggers the skill automatically when a question needs current information, or you can
 invoke it explicitly with `/agy`.
@@ -188,7 +192,8 @@ getting the details right:
 
 ```bash
 agy --dangerously-skip-permissions \
-    --effort low \
+    --effort high \
+    --model gemini-3.8-flash-high \
     --print-timeout 3m \
     --print "Search the live web for: ${QUERY}. Retrieve current information, synthesize a clear and concise summary, and include source links."
 ```
@@ -207,8 +212,9 @@ per-mode timeouts, and fail with a clear message when `agy` isn't on `PATH`.
 
 ### Model selection
 
-`deep` mode pins `gemini-3.8-flash-high`. The others use your `agy` default. Available models
-(from `agy models`):
+Every mode, in both scripts, pins `--model gemini-3.8-flash-high --effort high`. This is
+deliberate and uniform — none of the three modes fall back to a lighter model or lower effort,
+even `task` for trivial one-liners. Available models (from `agy models`):
 
 ```
 gemini-3.8-flash-high / -medium / -low
@@ -220,7 +226,9 @@ claude-opus-4-6-thinking
 gpt-oss-120b-medium
 ```
 
-To change one, edit the `--model` flag in `scripts/agy_runner.sh`. See
+To change the pinned model or effort, edit the `--model`/`--effort` flags in both
+`scripts/agy_search.sh` and `scripts/agy_runner.sh` — update all four invocations (one in
+`agy_search.sh`, three in `agy_runner.sh`) to keep them consistent. See
 [`references/cheatsheet.md`](references/cheatsheet.md) for the full flag reference.
 
 ---

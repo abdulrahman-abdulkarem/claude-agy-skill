@@ -14,19 +14,24 @@ Scripts live alongside this file in `scripts/` and work from any project directo
 
 ## Critical Execution Rules
 
-1. **Non-Interactive Flag Order**
+1. **Always `gemini-3.8-flash-high` at `--effort high`**
+   - Every invocation, in every mode (`search`, `deep`, `task`), uses
+     `--effort high --model gemini-3.8-flash-high`. This is not mode-dependent — there is no
+     lower-effort or different-model path. The wrapper scripts hardcode this; if you ever call
+     `agy` directly instead of through the scripts, set both flags yourself, every time.
+2. **Non-Interactive Flag Order**
    - Always supply `--dangerously-skip-permissions` **BEFORE** `--print` (`-p`).
    - If `--print` is placed first without an attached argument, it treats subsequent flags as
      prompt text and fails.
    - Correct format: `agy --dangerously-skip-permissions --print "Your prompt here"`
-2. **Prefer the Wrapper Scripts**
+3. **Prefer the Wrapper Scripts**
    - Web search: `~/.claude/skills/agy/scripts/agy_search.sh "<query>"`
    - General: `~/.claude/skills/agy/scripts/agy_runner.sh [search|deep|task] "<prompt>"`
    - They handle argument escaping, timeouts, and flag sequencing automatically.
-3. **Citations & Sources**
+4. **Citations & Sources**
    - Live web searches return grounded source URLs. Always preserve and surface these links in
      the final answer to the user.
-4. **Quoting**
+5. **Quoting**
    - Always wrap the query in double quotes. The scripts join all trailing args, so an unquoted
      query still works, but quoting avoids shell globbing on `*`, `?`, and `()`.
 
@@ -51,7 +56,7 @@ Use online search whenever information is needed beyond the training cutoff or i
 ~/.claude/skills/agy/scripts/agy_runner.sh search "<query>"
 
 # Direct CLI
-agy --dangerously-skip-permissions --effort low --print \
+agy --dangerously-skip-permissions --effort high --model gemini-3.8-flash-high --print \
     "Search the live web for: <query>. Provide a concise summary with official source links."
 ```
 
@@ -89,7 +94,8 @@ For quick standalone subtasks, boilerplate generation, or secondary verification
 ~/.claude/skills/agy/scripts/agy_runner.sh task "<task description>"
 
 # Direct CLI
-agy --dangerously-skip-permissions --effort medium --print "Perform this focused task: <task description>."
+agy --dangerously-skip-permissions --effort high --model gemini-3.8-flash-high --print \
+    "Perform this focused task: <task description>."
 ```
 
 Typical latency: ~5–20s.
