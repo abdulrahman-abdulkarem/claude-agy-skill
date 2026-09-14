@@ -42,19 +42,50 @@ Claude: [runs agy_search.sh "latest stable Node.js LTS version release date"]
 
 ## Requirements
 
-- **Claude Code** — any recent version
-- **Antigravity CLI (`agy`)** — install from https://antigravity.google, then verify:
-  ```bash
-  agy --version     # developed against 1.2.2
-  agy models        # confirms auth is working
-  ```
-- **Bash 4+** and a Linux or macOS environment
+- **[Claude Code](https://claude.com/claude-code)** — any recent version
+- **[Antigravity CLI](https://antigravity.google) (`agy`)** — **installed and signed in.** This
+  skill is a wrapper around it and does nothing without it. Developed against `agy` 1.2.2.
+- **Bash 4+**, on Linux or macOS
+
+> ⚠️ **Install and authenticate the Antigravity CLI *before* installing this skill.** The skill
+> shells out to `agy` for every operation. If `agy` is missing or not signed in, the skill will
+> install fine but every call will fail. Step 1 below covers it.
 
 ---
 
 ## Installation
 
-### Quick install (recommended)
+### Step 1 — Install the Antigravity CLI (do this first)
+
+**macOS / Linux:**
+```bash
+curl -fsSL https://antigravity.google/cli/install.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://antigravity.google/cli/install.ps1 | iex
+```
+
+Then **authenticate** — run `agy` once with no arguments. On first launch it opens your browser
+to sign in (or prints a copyable link if you're on a remote SSH session) and walks you through
+first-time setup. You must complete this, or every call from the skill will fail.
+
+Confirm it worked before continuing:
+
+```bash
+agy --version     # should print a version, e.g. 1.2.2
+agy models        # should list models — this is what proves you're authenticated
+```
+
+If `agy models` prints a model list, you're ready. If it errors or hangs, fix the sign-in first —
+installing the skill won't help.
+
+> If `agy: command not found` after installing, the installer's bin directory isn't on your
+> `PATH`. It's commonly `~/.local/bin` — add it with
+> `export PATH="$HOME/.local/bin:$PATH"` in your `~/.bashrc` or `~/.zshrc`.
+
+### Step 2 — Install this skill
 
 ```bash
 git clone https://github.com/abdulrahman-abdulkarem/claude-agy-skill.git
@@ -64,6 +95,9 @@ cd claude-agy-skill
 
 This copies the skill into `~/.claude/skills/agy/`, which makes it available in **every project**.
 Restart Claude Code afterwards so it picks up the new skill.
+
+The installer checks for `agy` and prints a warning if it's missing, but it will still install —
+so don't treat a successful install as proof that Step 1 worked. Use the verification below.
 
 ### Other install targets
 
@@ -85,7 +119,7 @@ cp references/cheatsheet.md  ~/.claude/skills/agy/references/
 chmod +x ~/.claude/skills/agy/scripts/*.sh
 ```
 
-### Verify
+### Step 3 — Verify
 
 ```bash
 ~/.claude/skills/agy/scripts/agy_search.sh "latest Node.js LTS version"
@@ -93,6 +127,9 @@ chmod +x ~/.claude/skills/agy/scripts/*.sh
 
 You should get a short summary with source URLs within ~30 seconds. Inside Claude Code, `/agy`
 should now appear in the skill list.
+
+If this errors with `'agy' CLI is not found in PATH`, go back to Step 1 — the skill is installed
+correctly, but its dependency isn't.
 
 > **Note:** Claude generally cannot install this skill for you. Claude Code's permission
 > classifier blocks agents from writing executables into `~/.claude/` or onto `PATH` — a
